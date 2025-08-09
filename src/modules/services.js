@@ -12,13 +12,14 @@ export const failedResponse = ({ error, res } = {}) => {
     // if (error.errmsg.search("duplicate key")) {
     //     res.status(400).json({ message: "Email already exsists"})
     // }
+    console.log({ error });
     switch (error.name) {
         case "ValidationError":
             res.status(400).json({ message: error.name, error })
             break;
         case "MongoServerError":
             if (error.errmsg.search("duplicate key")) {
-                res.status(400).json({message:"Email already exsits"})
+                res.status(400).json({ message: "Email already exsits" })
                 break;
             }
             else {
@@ -32,8 +33,12 @@ export const failedResponse = ({ error, res } = {}) => {
         case "SequelizeUniqueConstraintError":
             res.status(409).json({ message: error.name, error })
             break;
-        case "Email already exsists":
-            res.status(400).json({ message: error.name, error })
+
+    }
+
+    switch (error.code) {
+        case 1100:
+            res.status(400).json({ message: "user already exists", error })
             break;
 
         default:
