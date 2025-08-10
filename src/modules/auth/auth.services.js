@@ -16,8 +16,14 @@ export const signup = async (req, res, next) => {
          * send email OTP
          * send session
          */
+
+        /**
+         * @error 
+         * the phone number save as null and same to email
+         */
         const newUser = new userModel(req.body)
         await newUser.save()
+        console.log(newUser.age)
         successResponce({res:res , data : newUser})
         return
     } catch (error) {

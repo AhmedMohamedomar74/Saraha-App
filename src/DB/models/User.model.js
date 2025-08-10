@@ -22,7 +22,8 @@ const userSchema = new Schema({
             }
             return true
         },
-        trim:true
+        trim:true,
+        sparse : true
     },
     password:
     {
@@ -38,7 +39,8 @@ const userSchema = new Schema({
                 return false
             }
             return true
-        }
+        },
+        sparse: true
     },
     DOB:
     {
@@ -63,7 +65,7 @@ userSchema.virtual("age").get(function () {
     let currentDate =  new Date()
     let DOB =  new Date(this.DOB)
 
-    return DOB.getFullYear() - currentDate.getFullYear()
+    return  currentDate.getFullYear()  - DOB.getFullYear()
 })
 const userModel = model("user",userSchema)
 
