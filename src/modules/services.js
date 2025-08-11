@@ -33,6 +33,9 @@ export const failedResponse = ({ error, res } = {}) => {
         case "SequelizeUniqueConstraintError":
             res.status(409).json({ message: error.name, error })
             break;
+        case "wrong passord":
+            res.status(401).json({ message: error.name, error })
+            break;    
 
     }
 

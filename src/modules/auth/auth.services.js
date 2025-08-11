@@ -37,3 +37,56 @@ export const signup = async (req, res, next) => {
         return
     }
 }
+
+export const login = async (req,res,next)=>
+{
+    let ISmatch = false
+    let encryptionFlag = false
+    let FindUser
+    const {email , password , phoneNumber} = req.body
+    try {
+        if (phoneNumber) {
+            FindUser = await userModel.findOne({phoneNumber : phoneNumber})
+            if (FindUser) {
+                ISmatch = true
+            }
+        }
+        else if (email) {
+            FindUser = await userModel.findOne({email : email})
+            console.log(FindUser)
+            if (FindUser) {
+                ISmatch = true
+            }
+        }
+        else
+        {
+            throw new Error("There is no phone and email")
+            return
+        }
+
+        if (ISmatch == false) {
+            throw new Error("not found")
+            return
+        }
+        else
+        {
+            // console.log(FindUser)
+            encryptionFlag = bcrypt.compareSync(password,FindUser.password)
+            console.log({encryptionFlag , FindUser})
+            if (encryptionFlag) {
+                successResponce({res:res , data : FindUser})
+                return
+            }
+            else
+            {
+                throw new Error("wrong passord")
+                return
+            }
+        }
+
+
+    } catch (error) {
+        failedResponse({error:error , res:res})
+    }
+
+}

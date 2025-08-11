@@ -48,11 +48,17 @@ const userSchema = new Schema({
     }
 },
 {
-    timestamps : true
+    timestamps : true,
+    toObject : {
+        virtuals : true
+    },
+    toJSON : {
+        virtuals : true
+    }
 })
 
 userSchema.virtual("fullName").get(function () {
-    return `${this.firstName} + ${this.secondName}`
+    return `${this.firstName}  ${this.secondName}`
 })
 
 
