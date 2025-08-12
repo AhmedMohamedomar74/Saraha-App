@@ -1,10 +1,7 @@
-import { failedResponse ,successResponce } from "../services.js"
 import userModel from "./../../DB/models/User.model.js"
 import bcrypt  from "bcryptjs"
-
-
-import { asyncHandler } from "../../utilties/asyncHandler.js"
-
+import { asyncHandler } from "../../utils/asyncHandler.js"
+import { successResponce } from "../../utils/Response.js"
 
 export const signup = asyncHandler(async(req, res, next) => {
     /**

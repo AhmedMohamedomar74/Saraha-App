@@ -1,8 +1,7 @@
 import { testConnection } from "./DB/connection.db.js"
 import express from "express"
 import authController from "./modules/auth/auth.controller.js"
-import userController from "./modules/user/user.controller.js"
-import { glopalErrorHandling } from "./utilties/glopalErrorHandling.js"
+import { glopalErrorHandling } from "./utils/glopalErrorHandling.js"
 async function bootstrap() {
     const port = 3000
     const app = express()
@@ -11,7 +10,6 @@ async function bootstrap() {
 
     app.use(express.json())
     app.use("/auth", authController)
-    app.use("/users", userController)
 
     app.use(glopalErrorHandling)
 
