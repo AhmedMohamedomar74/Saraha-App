@@ -1,10 +1,13 @@
 import { failedResponse ,successResponce } from "../services.js"
 import userModel from "./../../DB/models/User.model.js"
 import bcrypt  from "bcryptjs"
-export const signup = async (req, res, next) => {
-    try {
 
-        /**
+
+import { asyncHandler } from "../../utilties/asyncHandler.js"
+
+
+export const signup = asyncHandler(async(req, res, next) => {
+    /**
          * @Doing
          * reterive data 
          * check user existance with number and email
@@ -32,11 +35,7 @@ export const signup = async (req, res, next) => {
         console.log(newUser.age)
         successResponce({res:res , data : newUser})
         return
-    } catch (error) {
-        failedResponse({error:error , res:res})
-        return
-    }
-}
+})
 
 export const login = async (req,res,next)=>
 {
@@ -90,3 +89,5 @@ export const login = async (req,res,next)=>
     }
 
 }
+
+
