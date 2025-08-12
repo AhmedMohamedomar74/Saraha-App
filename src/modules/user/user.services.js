@@ -1,51 +1,17 @@
-import { failedResponse ,successResponce } from "../services.js"
-import userModel from "../../DB/models/User.model.js"
+import userModel from "./../../DB/models/User.model.js"
+import { asyncHandler } from "../../utils/asyncHandler.js"
+import { successResponce } from "../../utils/Response.js"
+import { create, findOne } from "../../DB/db.services.js"
+import {compareHash, genrateHash} from "../../utils/secuirty/hash.services.js"
+import  jwt  from "jsonwebtoken"
 
-export const getUserByID = async(req,res,next)=>
+export const profile = asyncHandler(async (req , res , next)=>
 {
-    try {
-        const FindUser  = await userModel.findById(req.params.id)
-        if (FindUser != null) {
-            successResponce({res:res , status:200 ,data:FindUser})
-        }
-        else
-        {
-            const error = new Error("User not found");
-            error.name = "not found";
-            throw error;
-        }
-    } catch (error) {
-        failedResponse({res:res,error:error})
-    }
-}
-
-export const updateUser = async(req,res,next)=>
-{
-    const {email, name ,age} = req.body
-    try {
-        const updateUser = await userModel.updateOne({_id: req.params.id}, {
-            $set:
-            {
-                email,
-                name,
-                age
-            },
-            $inc:{__v : 1}
-        })
-        console.log(updateUser.matchedCount)
-        if (Number(updateUser.matchedCount) == 0) {
-            const error = new Error("User not found");
-            error.name = "not found";
-            throw error;
-        }
-        else
-        {
-            successResponce({res:res , status:200 ,data:updateUser})
-        }
-    } catch (error) {
-        // if (error.errmsg.search("duplicate key")) {
-        //     res.status(400).json({ message: "Email already exsists"})
-        // }
-        failedResponse({res:res,error:error})
-    }
-}
+    // console.log()
+    const {authorization} = req.headers
+    console.log({authorization})
+    const decode = jwt.verify(authorization,"321rfredgsf")
+    // console.log(decode)
+    const findUser = await findOne({model:userModel , filter : {_id : decode._id}})
+    successResponce({res:res , data:findUser})
+})
