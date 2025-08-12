@@ -37,14 +37,13 @@ export const signup = asyncHandler(async(req, res, next) => {
         return
 })
 
-export const login = async (req,res,next)=>
+export const login = asyncHandler(async (req,res,next)=>
 {
     let ISmatch = false
     let encryptionFlag = false
     let FindUser
     const {email , password , phoneNumber} = req.body
-    try {
-        if (phoneNumber) {
+    if (phoneNumber) {
             FindUser = await userModel.findOne({phoneNumber : phoneNumber})
             if (FindUser) {
                 ISmatch = true
@@ -59,12 +58,13 @@ export const login = async (req,res,next)=>
         }
         else
         {
-            throw new Error("There is no phone and email")
+            // next(
+            next(Error("There is no phone and email" , {cause : 400}))
             return
         }
 
         if (ISmatch == false) {
-            throw new Error("not found")
+            next(Error("not found" , {cause : 404}))
             return
         }
         else
@@ -78,16 +78,10 @@ export const login = async (req,res,next)=>
             }
             else
             {
-                throw new Error("wrong passord")
+                next(Error("wrong passord" , {cause : 401}))
                 return
             }
         }
-
-
-    } catch (error) {
-        failedResponse({error:error , res:res})
-    }
-
-}
+})
 
 
