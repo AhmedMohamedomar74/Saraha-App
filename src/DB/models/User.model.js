@@ -1,40 +1,43 @@
 import { Schema, model } from "mongoose";
 
+export const genderEnum = { male: "male", female: "female" }
+export const roleEnum = { admin: "admin", user: "user" }
+
 const userSchema = new Schema({
-    firstName:{
-        type:String,
-        required : true,
-        trim : true,
-        lowercase : true
+    firstName: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true
     },
-    secondName:{
-        type:String,
-        required : true,
-        trim : true,
-        lowercase : true
+    secondName: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true
     },
-    email:{
-        type:String,
-        unique : true,
-        required : function () {
+    email: {
+        type: String,
+        unique: true,
+        required: function () {
             if (this.phoneNumber) {
                 return false
             }
             return true
         },
-        trim:true,
-        sparse : true
+        trim: true,
+        sparse: true
     },
     password:
     {
-        type:String,
-        required:true
+        type: String,
+        required: true
     },
-    phoneNumber : 
+    phoneNumber:
     {
-        type : String,
+        type: String,
         unique: true,
-        required : function () {
+        required: function () {
             if (this.email) {
                 return false
             }
@@ -44,18 +47,30 @@ const userSchema = new Schema({
     },
     DOB:
     {
-        type : Date
-    }
-},
-{
-    timestamps : true,
-    toObject : {
-        virtuals : true
+        type: Date
     },
-    toJSON : {
-        virtuals : true
-    }
-})
+    gender:
+    {
+        type: String,
+        enum: Object.values(genderEnum),
+        default: genderEnum.male
+    },
+    role:
+    {
+        type: String,
+        enum: Object.values(roleEnum),
+        default: roleEnum.user
+    },
+},
+    {
+        timestamps: true,
+        toObject: {
+            virtuals: true
+        },
+        toJSON: {
+            virtuals: true
+        }
+    })
 
 userSchema.virtual("fullName").get(function () {
     return `${this.firstName}  ${this.secondName}`
@@ -68,11 +83,11 @@ userSchema.virtual("fullName").set(function (fullname) {
 })
 
 userSchema.virtual("age").get(function () {
-    let currentDate =  new Date()
-    let DOB =  new Date(this.DOB)
+    let currentDate = new Date()
+    let DOB = new Date(this.DOB)
 
-    return  currentDate.getFullYear()  - DOB.getFullYear()
+    return currentDate.getFullYear() - DOB.getFullYear()
 })
-const userModel = model("user",userSchema)
+const userModel = model("user", userSchema)
 
 export default userModel

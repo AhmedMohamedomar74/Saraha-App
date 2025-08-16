@@ -6,14 +6,23 @@ import jwt from "jsonwebtoken"
 
 
 export const auth = asyncHandler(async (req, res, next) => {
+    let decode = undefined
     // console.log()
     const { authorization } = req.headers
-    if (!authorization) {
+    const [Bearer , token] = authorization.split(" ")
+    if (!Bearer || !token) {
         return next(new Error("Authorization token is required", { cause: 401 }))
     }
 
-    console.log({ authorization })
-    const decode = jwt.verify(authorization, process.env.HASH_KEY)
+    switch (Bearer) {
+        case "Bearer":
+            decode = jwt.verify(token,process.env.USER_ACESS_TOKEN_SIGNATURE)
+            break;
+        case "system" : 
+            decode = jwt.verify(token,process.env.SYSTEM_ACESS_TOKEN_SIGNATURE)
+        default:
+            break;
+    }
 
     
     // console.log(decode)

@@ -1,4 +1,4 @@
-import userModel from "./../../DB/models/User.model.js"
+import userModel, { roleEnum } from "./../../DB/models/User.model.js"
 import { asyncHandler } from "../../utils/asyncHandler.js"
 import { successResponce } from "../../utils/Response.js"
 import { create, findOne } from "../../DB/db.services.js"
@@ -64,11 +64,29 @@ export const login = asyncHandler(async (req, res, next) => {
     }
     else {
         // console.log(FindUser)
+
+        const signatureLevel = FindUser.role == roleEnum.user ? "user" : "admin"
+        let signatures = {access : undefined , refresh : undefined}
+
+        switch (signatureLevel) {
+            case "user":
+                signatures.access = process.env.USER_ACESS_TOKEN_SIGNATURE
+                signatures.refresh = process.env.USER_REFRESH_TOKEN_SIGNATURE
+                break;
+            
+            case "admin":
+                signatures.access = process.env.SYSTEM_ACESS_TOKEN_SIGNATURE
+                signatures.refresh = process.env.SYSTEM_REFRESH_TOKEN_SIGNATURE
+                break;
+        
+            default:
+                break;
+        }
         const encryptionFlag = await compareHash({plainText : password , hashText:FindUser.password})
         console.log({ encryptionFlag, FindUser })
         if (encryptionFlag) {
-            const acessToken = jwt.sign({IslogIn : true , _id : FindUser.id},process.env.HASH_KEY,{expiresIn:"0.5h"})
-            const refreshToken = jwt.sign({IslogIn : true , _id : FindUser.id},process.env.HASH_KEY,{expiresIn:"1y"})
+            const acessToken = jwt.sign({IslogIn : true , _id : FindUser.id},signatures.access,{expiresIn:process.env.ACESS_TOKEN_EXPIRE_IN})
+            const refreshToken = jwt.sign({IslogIn : true , _id : FindUser.id},signatures.refresh,{expiresIn:process.env.REFRESH_TOKEN_EXPIRE_IN})
             successResponce({ res: res, data: {acessToken , refreshToken} })
             return
         }
