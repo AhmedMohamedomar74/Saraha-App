@@ -21,7 +21,7 @@ export const signup = asyncHandler(async (req, res, next) => {
      * the phone number save as null and same to email
      */
     const { password } = req.body
-    let n_password = await genrateHash({plainText : password , saltRound:10})
+    let n_password = await genrateHash({plainText : password , saltRound:parseInt(process.env.HASH_SALT_ROUND)})
     req.body.password = n_password
     // console.log({n_password})
     // console.log(req.body)
@@ -67,8 +67,8 @@ export const login = asyncHandler(async (req, res, next) => {
         const encryptionFlag = await compareHash({plainText : password , hashText:FindUser.password})
         console.log({ encryptionFlag, FindUser })
         if (encryptionFlag) {
-            const acessToken = jwt.sign({IslogIn : true , _id : FindUser.id},"321rfredgsf",{expiresIn:"0.5h"})
-            const refreshToken = jwt.sign({IslogIn : true , _id : FindUser.id},"321rfredgsf",{expiresIn:"1y"})
+            const acessToken = jwt.sign({IslogIn : true , _id : FindUser.id},process.env.HASH_KEY,{expiresIn:"0.5h"})
+            const refreshToken = jwt.sign({IslogIn : true , _id : FindUser.id},process.env.HASH_KEY,{expiresIn:"1y"})
             successResponce({ res: res, data: {acessToken , refreshToken} })
             return
         }

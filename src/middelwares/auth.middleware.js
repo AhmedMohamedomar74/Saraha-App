@@ -13,7 +13,7 @@ export const auth = asyncHandler(async (req, res, next) => {
     }
 
     console.log({ authorization })
-    const decode = jwt.verify(authorization, "321rfredgsf")
+    const decode = jwt.verify(authorization, process.env.HASH_KEY)
 
     
     // console.log(decode)
