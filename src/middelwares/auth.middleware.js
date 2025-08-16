@@ -1,8 +1,7 @@
 import userModel from "../DB/models/User.model.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
-import { successResponce } from "../utils/Response.js"
-import { create, findOne } from "../DB/db.services.js"
-import jwt from "jsonwebtoken"
+import { findOne } from "../DB/db.services.js"
+import { selectSignatureLevel, verify } from "../utils/secuirty/token.services.js"
 
 
 export const auth = asyncHandler(async (req, res, next) => {
@@ -13,16 +12,8 @@ export const auth = asyncHandler(async (req, res, next) => {
     if (!Bearer || !token) {
         return next(new Error("Authorization token is required", { cause: 401 }))
     }
-
-    switch (Bearer) {
-        case "Bearer":
-            decode = jwt.verify(token,process.env.USER_ACESS_TOKEN_SIGNATURE)
-            break;
-        case "system" : 
-            decode = jwt.verify(token,process.env.SYSTEM_ACESS_TOKEN_SIGNATURE)
-        default:
-            break;
-    }
+    const signatureLevel = selectSignatureLevel(Bearer)
+    decode = verify({token : token, key : signatureLevel.access})
 
     
     // console.log(decode)
