@@ -61,7 +61,7 @@ async function verifyGoogle({ idToken = "" }) {
     return ticket.getPayload();
 }
 
-export const signupGmaail = asyncHandler(async (req, res, next) => {
+export const signupGmail = asyncHandler(async (req, res, next) => {
     const { idToken } = req.body
     const bayload = await verifyGoogle({ idToken: idToken })
     const { email, name, picture, email_verified } = bayload
@@ -75,6 +75,34 @@ export const signupGmaail = asyncHandler(async (req, res, next) => {
             }
         })
         successResponce({ res: res, data: newUser })
+    }
+    else {
+        next(new Error("not verified email"), { cause: 403 })
+    }
+    console.log(bayload)
+})
+
+
+export const signinGmail = asyncHandler(async (req, res, next) => {
+    const { idToken } = req.body
+    const bayload = await verifyGoogle({ idToken: idToken })
+    const { email, email_verified } = bayload
+    if (email_verified) {
+        const findUser = await findOne({
+            model: userModel, filter: {
+                email: email,
+                provider: providerEnum.goole
+            }
+        })
+        if (findUser) {
+            const tokens = generateAuthTokens(findUser)
+            successResponce({ res: res, data: tokens })
+        }
+        else
+        {
+            next(new Error("wrong email or provider",{cause : 404}))
+        }
+        
     }
     else {
         next(new Error("not verified email"), { cause: 403 })

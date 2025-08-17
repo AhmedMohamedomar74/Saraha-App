@@ -4,7 +4,8 @@ import { validateLoginCredentials, validatePassword } from "../../middelwares/au
 const router = Router()
 
 router.post("/signup",authServices.signup)
-router.post("/signupWithGmail",authServices.signupGmaail)
+router.post("/signupWithGmail",authServices.signupGmail)
+router.post("/loginWithGmail",authServices.signinGmail)
 router.post("/login",validateLoginCredentials, validatePassword,authServices.login)
 
 export default router
