@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import { asyncHandler } from "../asyncHandler.js"
 import { findOne } from "../../DB/db.services.js"
-import userModel from "../../DB/models/User.model.js"
+import userModel, { roleEnum } from "../../DB/models/User.model.js"
 export const signatureLevelEnum = { admin: "admin", user: "Bearer" }
 export const signatureKeySelectEnum = { acess: "acess", refresh: "refresh" }
 export const genrateToken = ({ data = {}, key = {}, options = {} }) => {
@@ -70,3 +70,27 @@ export const decodeToken = ({ selectKey = signatureKeySelectEnum.acess }) => {
         next()
     })
 }
+
+export const generateAuthTokens = (user) => {
+    const signatureLevel = user.role === roleEnum.user 
+        ? signatureLevelEnum.user 
+        : signatureLevelEnum.admin;
+    
+    const signatures = selectSignatureLevel(signatureLevel);
+    
+    const tokenPayload = { IslogIn: true, _id: user.id };
+    
+    const accessToken = genrateToken({
+        data: tokenPayload,
+        key: signatures.access,
+        options: { expiresIn: process.env.ACESS_TOKEN_EXPIRE_IN }
+    });
+    
+    const refreshToken = genrateToken({
+        data: tokenPayload,
+        key: signatures.refresh,
+        options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRE_IN }
+    });
+    
+    return { accessToken, refreshToken };
+};

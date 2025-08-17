@@ -4,7 +4,7 @@ import { successResponce } from "../../utils/Response.js"
 import { create, findOne } from "../../DB/db.services.js"
 import { compareHash, genrateHash } from "../../utils/secuirty/hash.services.js"
 import { OAuth2Client } from 'google-auth-library'
-import { genrateToken, selectSignatureLevel, signatureLevelEnum } from "./../../utils/secuirty/token.services.js"
+import { generateAuthTokens, genrateToken, selectSignatureLevel, signatureLevelEnum } from "./../../utils/secuirty/token.services.js"
 export const signup = asyncHandler(async (req, res, next) => {
     /**
          * @Doing
@@ -46,83 +46,9 @@ export const signup = asyncHandler(async (req, res, next) => {
 })
 
 export const login = asyncHandler(async (req, res, next) => {
-    let ISmatch = false
-    let FindUser
-    const { email, password, phoneNumber } = req.body
-    if (phoneNumber) {
-        FindUser = await findOne({ model: userModel, filter: { phoneNumber: phoneNumber  , provider : providerEnum.system} })
-        if (FindUser) {
-            ISmatch = true
-        }
-    }
-    else if (email) {
-        FindUser = await findOne({ model: userModel, filter: { email: email } })
-        console.log(FindUser)
-        if (FindUser) {
-            ISmatch = true
-        }
-    }
-    else {
-        // next(
-        next(Error("There is no phone and email", { cause: 400 }))
-        return
-    }
-
-    if (ISmatch == false) {
-        next(Error("not found", { cause: 404 }))
-        return
-    }
-    else {
-        // console.log(FindUser)
-
-        const signatureLevel = FindUser.role == roleEnum.user ? signatureLevelEnum.user : signatureLevelEnum.admin
-        let signatures = selectSignatureLevel(signatureLevel)
-        const encryptionFlag = await compareHash({ plainText: password, hashText: FindUser.password })
-        console.log({ encryptionFlag, FindUser })
-        if (encryptionFlag) {
-            const acessToken = genrateToken(
-                {
-                    data: { IslogIn: true, _id: FindUser.id },
-                    key: signatures.access,
-                    options: { expiresIn: process.env.ACESS_TOKEN_EXPIRE_IN }
-                }
-            )
-            const refreshToken = genrateToken(
-                {
-                    data: { IslogIn: true, _id: FindUser.id },
-                    key: signatures.refresh,
-                    options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRE_IN }
-                })
-            successResponce({ res: res, data: { acessToken, refreshToken } })
-            return
-        }
-        else {
-            next(Error("wrong passord", { cause: 401 }))
-            return
-        }
-    }
+    const tokens = generateAuthTokens(req.user);
+    successResponce({ res, data: tokens });
 })
-
-
-/**
- * 
- * {
-  iss: 'https://accounts.google.com',
-  azp: '1087607913237-affnjkv2cdqbeuigmumhddh3t73742tr.apps.googleusercontent.com',
-  aud: '1087607913237-affnjkv2cdqbeuigmumhddh3t73742tr.apps.googleusercontent.com',
-  sub: '107894381789248334092',
-  email: 'ahmedmohamedomar74@gmail.com',
-  email_verified: true,
-  nbf: 1755442587,
-  name: 'ahmed mohamedomar',
-  picture: 'https://lh3.googleusercontent.com/a/ACg8ocI1VdrnTKK46izXwfFlfMftr6Td6bDIkh-d9ctzmFZPXiyqMyM=s96-c',
-  given_name: 'ahmed',
-  family_name: 'mohamedomar',
-  iat: 1755442887,
-  exp: 1755446487,
-  jti: '1df50cc82e26c5bd778d615b032ab629ce55015a'
-}
- */
 
 async function verifyGoogle({ idToken = "" }) {
     const client = new OAuth2Client();
@@ -150,9 +76,8 @@ export const signupGmaail = asyncHandler(async (req, res, next) => {
         })
         successResponce({ res: res, data: newUser })
     }
-    else
-    {
-        next(new Error ("not verified email") , {cause : 403 })
+    else {
+        next(new Error("not verified email"), { cause: 403 })
     }
     console.log(bayload)
 })
