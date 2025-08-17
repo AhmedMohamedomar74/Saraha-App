@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 
 export const genderEnum = { male: "male", female: "female" }
 export const roleEnum = { admin: "admin", user: "user" }
-
+export const providerEnum = {goole : "google" , system : "system"}
 const userSchema = new Schema({
     firstName: {
         type: String,
@@ -31,7 +31,10 @@ const userSchema = new Schema({
     password:
     {
         type: String,
-        required: true
+        required: function () {
+            console.log(this.provider === providerEnum.system)
+            return (this.provider === providerEnum.system)
+        }
     },
     phoneNumber:
     {
@@ -61,6 +64,16 @@ const userSchema = new Schema({
         enum: Object.values(roleEnum),
         default: roleEnum.user
     },
+    provider:
+    {
+        type :String,
+        enum : Object.values(providerEnum),
+        default : providerEnum.system
+    },
+    picture : 
+    {
+        type : String
+    }
 },
     {
         timestamps: true,

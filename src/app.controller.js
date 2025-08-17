@@ -3,6 +3,7 @@ import express from "express"
 import authController from "./modules/auth/auth.controller.js"
 import userController from "./modules/user/user.controller.js"
 import { glopalErrorHandling } from "./utils/glopalErrorHandling.js"
+import cors from "cors"
 
 import path from "node:path"
 import dotenv from "dotenv"
@@ -16,7 +17,7 @@ async function bootstrap() {
     const app = express()
     // DB
     testConnection()
-
+    app.use(cors())
     app.use(express.json())
     app.use("/auth", authController)
     app.use("/user", userController)
